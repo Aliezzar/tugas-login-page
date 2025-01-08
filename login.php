@@ -11,20 +11,24 @@ if(isset($_SESSION["is_login"])) {
 if(isset($_POST['login'])) {
     $username = $_POST["username"];
     $password = $_POST["password"];
-    $hash_password = hash('sha256', $password);
+    $hash_password = hash('sha256', $password); // Hash the input password
 
-    $sql = "SELECT * FROM users WHERE username='$username' AND password='$hash_password'";
+    $sql = "SELECT * FROM users WHERE username='$username'";
 
     $result = $db->query($sql);
 
     if($result->num_rows > 0) {
         $data = $result->fetch_assoc();
-        $_SESSION["username"] = $data["username"];
-        $_SESSION["is_login"] = true;
+        if ($data["password"] === $hash_password) { // Compare the hashed password
+            $_SESSION["username"] = $data["username"];
+            $_SESSION["is_login"] = true;
 
-        header("location: dashboard.php");
+            header("location: dashboard.php");
+        } else {
+            $login_message = "Password salah";
+        }
     } else {
-        $login_message = "akun tidak ditemukan";
+        $login_message = "Akun tidak ditemukan";
     }
 }
 
